@@ -1,5 +1,5 @@
 # OpenCT
-A compilation of code libraies and tools for display testing and colour science.
+A compilation of code libraries and tools for display testing and colour science.
 
 
 ## Contents
