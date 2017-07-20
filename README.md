@@ -7,7 +7,7 @@ A compilation of code libraries and tools for display testing and colour science
 - Display test pattern generator
 - CIE colour chart generator
 
-###Test Pattern Generator
+### Test Pattern Generator
 Generates various test patterns dynamically scaled to fit any display.
 
 Patterns:
