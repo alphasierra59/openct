@@ -1,4 +1,8 @@
-#from numpy.distutils.lib2def import output_def
+######################
+#Colour Math Library
+######################
+
+
 ######################
 #Constants
 ######################
