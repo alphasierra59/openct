@@ -186,7 +186,7 @@ CIE1964StdObs = {
 #need to figure out an interpolation scheme
 def CIE1931ObsInterp(wavelength):
     
-    if(wavelength >= 780)
+    if(wavelength >= 780):
         raise ValueError("Cannot interpolate past 780nm")
     
     CIE1931StdObs[wavelength]
@@ -201,6 +201,40 @@ def CIE1931ObsInterp(wavelength):
 #############################
 #   Standard Illuminants    #
 #############################
+
+#Standard Illuminant White Points
+#Defining class for points
+class StdIllumWhitePt:
+    
+    x = 0
+    y = 0
+    CCT = 0
+
+    def __init__(self,xCoord,yCoord,CCTVal):
+        #CIE 1931 Chromaticity Coordinates
+        self.x   = xCoord
+        self.y   = yCoord
+        self.CCT = CCTVal
+
+#Various Standard Illuminant White Points
+A_Wpt   = StdIllumWhitePt(0.44757,0.40745,2856)     #Incandescent / Tungsten
+D50_WPt = StdIllumWhitePt(0.34567,0.35850,5003)     #Horizon Light. ICC profile PCS
+D55_WPt = StdIllumWhitePt(0.33242,0.34743,5503)     #Mid-morning / Mid-afternoon Daylight
+D65_WPt = StdIllumWhitePt(0.31271,0.32902,6504)     #Noon Daylight: Television, sRGB color space
+D75_WPt = StdIllumWhitePt(0.29902,0.31485,7504)     #North sky Daylight
+E_WPt   = StdIllumWhitePt((1/3)  ,(1/3)  ,5454)	    #Equal energy
+F1_WPt  = StdIllumWhitePt(0.31310,0.33727,6430)     #Daylight Fluorescent
+F2_WPt  = StdIllumWhitePt(0.37208,0.37529,4230)     #Cool White Fluorescent
+F3_WPt  = StdIllumWhitePt(0.40910,0.39430,3450)     #White Fluorescent
+F4_WPt  = StdIllumWhitePt(0.44018,0.40329,2940)     #Warm White Fluorescent
+F5_WPt  = StdIllumWhitePt(0.31379,0.34531,6350)     #Daylight Fluorescent
+F6_WPt  = StdIllumWhitePt(0.37790,0.38835,4150)     #Lite White Fluorescent
+F7_WPt  = StdIllumWhitePt(0.31292,0.32933,6500)     #D65 simulator, Daylight simulator
+F8_WPt  = StdIllumWhitePt(0.34588,0.35875,5000)     #D50 simulator, Sylvania F40 Design 50
+F9_WPt  = StdIllumWhitePt(0.37417,0.37281,4150)     #Cool White Deluxe Fluorescent
+F10_WPt = StdIllumWhitePt(0.34609,0.35986,5000)     #Philips TL85, Ultralume 50
+F11_WPt = StdIllumWhitePt(0.38052,0.37713,4000)     #Philips TL84, Ultralume 40
+F12_WPt = StdIllumWhitePt(0.43695,0.40441,3000)     #Philips TL83, Ultralume 30
 
 #CIE D65 Standard Illuminant Lookup Table
 #Published by CIE 
@@ -392,16 +426,29 @@ def xyTOTri(x,y,TriY):
     return[XCoord,YCoord,ZCoord]
 
 #############################
-#   CIE 1960 Colour Space   #
+#   CIE 1976 Colour Space   #
 #############################
 #Lightness from Luminance
-def YtoL(luminance):
+def YtoL(luminance, refwhiteluminance):
     
     #Reference White Luminance
-    Y_n = 1 ##TODO
+    Y_n = 1 ##TODO --> is there some standard?
     
     if (not isinstance(luminance,(int,float))):
         raise TypeError("Luminance value must be float or int")
+        
+    if (not isinstance(refwhiteluminance,(int,float))):
+        raise TypeError("Reference White Luminance must be float or int")
+    
+    normalizedLuminance = (luminance / refwhiteluminance)
+    
+    if(normalizedLuminance <= 0.008856):
+        lightness = 903.3 * normalizedLuminance
+    elif (normalizedLuminance > 0.008856):
+        lightness = (116 * (normalizedLuminance**(1/3)) - (1/16))
+        
+    if((lightness < 0) or (lightness>100)):
+        raise ValueError("Lightness L* value %d outside of allowed range 0-100" % lightness)
     
     return lightness
 
@@ -499,8 +546,8 @@ def CCTxy(xCoord, yCoord):
     if (not isinstance(yCoord,(int,float))):
         raise TypeError("yCoord value must be float or int")
         
-    n = ((xCoord-0.320)/(0.1858-yCoord))
-    CCT = (449*(n**3) + 3525*(n**2) + 6823.3*(n**2) + 5520.33)
+    n = ((xCoord-0.3320)/(0.1858-yCoord))
+    CCT = (449*(n**3) + 3525*(n**2) + (6823.3*n) + 5520.33)
     
     return CCT
 
@@ -516,7 +563,7 @@ def CCT_Tri(TriX,TriY,TriZ):
     if (not isinstance(TriZ,(int,float))):
         raise TypeError("TriZ value must be float or int")
         
-    n = ((xCoord-0.320)/(0.1858-yCoord))
+    n = 0 #TODO need to get this for TriStim
     CCT = (449*(n**3) + 3525*(n**2) + 6823.3*(n**2) + 5520.33)
     
     return CCT
