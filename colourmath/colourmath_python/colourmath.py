@@ -217,6 +217,7 @@ class StdIllumWhitePt:
         self.CCT = CCTVal
 
 #Various Standard Illuminant White Points
+#TODO insert citation
 A_Wpt   = StdIllumWhitePt(0.44757,0.40745,2856)     #Incandescent / Tungsten
 D50_WPt = StdIllumWhitePt(0.34567,0.35850,5003)     #Horizon Light. ICC profile PCS
 D55_WPt = StdIllumWhitePt(0.33242,0.34743,5503)     #Mid-morning / Mid-afternoon Daylight
@@ -505,6 +506,7 @@ def TriTOv(TriX,TriY,TriZ):
     
     vCoord = ((9*TriY)/(TriX+15*TriY+3*TriZ))
     return vCoord
+
 #########################################
 #   CIE 1931 to/from 1960 Colour Space  #
 #########################################
@@ -563,25 +565,28 @@ def CCT_Tri(TriX,TriY,TriZ):
     if (not isinstance(TriZ,(int,float))):
         raise TypeError("TriZ value must be float or int")
         
-    n = 0 #TODO need to get this for TriStim
-    CCT = (449*(n**3) + 3525*(n**2) + 6823.3*(n**2) + 5520.33)
+    xCoord = TriTOx(TriX,TriY,TriZ)
+    yCoord = TriTOx(TriX,TriY,TriZ)
+        
+    n = ((xCoord-0.3320)/(0.1858-yCoord))
+    CCT = (449*(n**3) + 3525*(n**2) + (6823.3*n) + 5520.33)
     
     return CCT
     
-#cct from RGB --> noep
-#def CCT_RGB(RedVal, GreenVal, BlueVal):
-#
-#    if (not isinstance(RedVal,(int,float))):
-#        raise TypeError("RedVal value must be float or int")
-#    
-#    if (not isinstance(GreenVal,(int,float))):
-#        raise TypeError("GreenVal value must be float or int")
-#    
-#    if (not isinstance(BlueVal,(int,float))):
-#        raise TypeError("BlueVal value must be float or int")
-#        
-#    n = ((xCoord-0.320)/(0.1858-yCoord))
-#    CCT = 449*(n**3) + 3525*(n**2) + 6823.3*(n**2) + 5520.33*
-#    
-#    return CCT
+#CCT from RGB
+def CCT_RGB(RedVal, GreenVal, BlueVal):
+
+    if (not isinstance(RedVal,(int,float))):
+        raise TypeError("RedVal value must be float or int")
+    
+    if (not isinstance(GreenVal,(int,float))):
+        raise TypeError("GreenVal value must be float or int")
+    
+    if (not isinstance(BlueVal,(int,float))):
+        raise TypeError("BlueVal value must be float or int")
+        
+    n = ((0.23881*RedVal)+(0.25499*GreenVal)+(-0.58291*BlueVal))
+    CCT = (449*(n**3) + 3525*(n**2) + (6823.3*n) + 5520.33)
+    
+    return CCT
     
