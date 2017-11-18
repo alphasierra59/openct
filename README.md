@@ -1,4 +1,4 @@
-# OpenCT - Open Colour Tools
+# OpenDT - Open Colour Tools
 A compilation of code libraries and tools for display testing and colour science. Under development.
 
 
